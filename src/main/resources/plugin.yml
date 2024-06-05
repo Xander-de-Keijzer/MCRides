@@ -1,0 +1,16 @@
+name: MCRides
+main: nl.xanderdekeijzer.rides.Main
+version: '1.0'
+description: Xander de Keijzer Minecraft rides plugin
+api-version: '1.20'
+authors:
+  - Xander de Keijzer
+libraries:
+  - org.jetbrains.kotlin:kotlin-stdlib:1.9.23
+commands:
+  ride:
+    description: "MCRides command"
+    aliases: "MCRide"
+    permission: "mcrides.command"
+    permission-message: "You do not have <permission>"
+    usage: "MCRides usage"

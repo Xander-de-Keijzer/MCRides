@@ -1,0 +1,5 @@
+/ride reflect [name] getfield [field]
+/ride reflect [name] setfield [field] value
+
+/ride reflect [name] [getmethod] [method]
+/ride reflect [name] [callmethod] [method] *values
