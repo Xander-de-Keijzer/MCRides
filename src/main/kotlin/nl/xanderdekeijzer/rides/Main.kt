@@ -13,6 +13,7 @@ import nl.xanderdekeijzer.rides.utils.*
 import org.bukkit.Material
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
+import org.bukkit.craftbukkit.inventory.CraftItemStack
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -29,18 +30,21 @@ class Main: JavaPlugin(), Listener {
     companion object {
         lateinit var instance: JavaPlugin
 
-        val globalScheduler: GlobalRegionScheduler = instance.server.globalRegionScheduler
-        val asyncScheduler: AsyncScheduler = instance.server.asyncScheduler
+        lateinit var globalScheduler: GlobalRegionScheduler
+        lateinit var asyncScheduler: AsyncScheduler
         val playerData: HashMap<Player, PlayerData> = hashMapOf()
     }
 
     override fun onEnable() {
         instance = this
+        globalScheduler = server.globalRegionScheduler
+        asyncScheduler = server.asyncScheduler
+
         server.onlinePlayers.forEach { playerData[it] = PlayerData() }
 
         getCommand("ride")?.setExecutor(this)
 
-        logger.info("${pluginMeta.displayName} enabled")
+        logger.info("${pluginMeta.displayName} enabled ${DATA_ITEM_STACK_ID} ${DATA_ITEM_STACK_ID.id} ${DATA_ITEM_STACK_ID.serializer}")
     }
 
     override fun onDisable() {
@@ -80,7 +84,7 @@ class Main: JavaPlugin(), Listener {
                 ),
                 ClientboundSetEntityDataPacket(
                     id,
-                    listOf(itemDisplayItemStack(ItemStack(Material.GRAY_CONCRETE)))
+                    listOf(DATA_ITEM_STACK_ID.create(ItemStack(Material.GRAY_CONCRETE).nms()))
                 )
             )
 
@@ -93,7 +97,7 @@ class Main: JavaPlugin(), Listener {
 
                 ClientboundSetEntityDataPacket(
                     id,
-                    listOf(displayLeftRotation(quat))
+                    listOf(DATA_LEFT_ROTATION_ID.create(quat.toQuaternionF()))
                 ).sendPacket(sender)
 
 

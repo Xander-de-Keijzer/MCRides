@@ -17,60 +17,27 @@ import org.bukkit.util.Vector
 import org.joml.Quaternionf
 import org.joml.Vector3f
 
-val DISPLAY_LEFT_ROTATION_ID = Display::class.java.field("DATA_LEFT_ROTATION_ID").f("id") as Int
-val DISPLAY_SCALE_ID = Display::class.java.field("DATA_SCALE_ID").f("id") as Int
-val ITEM_DISPLAY_ITEM_STACK_ID = ItemDisplay::class.java.field("DATA_ITEM_STACK_ID").f("id") as Int
-val ITEM_DISPLAY_ITEM_DISPLAY_ID = ItemDisplay::class.java.field("DATA_ITEM_DISPLAY_ID").f("id") as Int
 
-fun displayLeftRotation(rotation: Quaternion): DataValue<Quaternionf> =
-    DataValue.create(
-        EntityDataAccessor(
-            DISPLAY_LEFT_ROTATION_ID,
-            EntityDataSerializers.QUATERNION
-        ),
-        rotation.toQuaternionF()
-    )
-fun displayScale(scale: Vector): DataValue<Vector3f> =
-    DataValue.create(
-        EntityDataAccessor(
-            DISPLAY_SCALE_ID,
-            EntityDataSerializers.VECTOR3
-        ),
-        scale.toVector3f()
-    )
-fun itemDisplayItemStack(itemStack: ItemStack): DataValue<net.minecraft.world.item.ItemStack> =
-    DataValue.create(
-        EntityDataAccessor(
-            ITEM_DISPLAY_ITEM_STACK_ID,
-            EntityDataSerializers.ITEM_STACK
-        ),
-        (itemStack as CraftItemStack).handle
-    )
-fun itemDisplayDisplayType(displayType: ItemDisplayContext): DataValue<Byte> =
-    DataValue.create(
-        EntityDataAccessor(
-            ITEM_DISPLAY_ITEM_DISPLAY_ID,
-            EntityDataSerializers.BYTE
-        ),
-        displayType.id
-    )
+fun entityTeleportPacket(id: Int, location: Location): ClientboundTeleportEntityPacket
+        = entityTeleportPacket(id, location.x, location.y, location.z, location.yaw, location.pitch)
 
-fun entityTeleportPacket(id: Int, location: Location): ClientboundTeleportEntityPacket {
+fun entityTeleportPacket(id: Int, location: Vector): ClientboundTeleportEntityPacket
+        = entityTeleportPacket(id, location.x, location.y, location.z)
+
+fun entityTeleportPacket(id: Int, x: Double, y: Double, z: Double, yaw: Float = 0F, pitch: Float = 0F): ClientboundTeleportEntityPacket {
     val buf = FriendlyByteBuf(Unpooled.buffer())
     buf.writeVarInt(id)
-    buf.writeDouble(location.x)
-    buf.writeDouble(location.y)
-    buf.writeDouble(location.z)
-    buf.writeByte(location.yaw.toInt())
-    buf.writeByte(location.pitch.toInt())
+    buf.writeDouble(x)
+    buf.writeDouble(y)
+    buf.writeDouble(z)
+    buf.writeByte(yaw.toInt())
+    buf.writeByte(pitch.toInt())
     buf.writeBoolean(false)
 
-    return ClientboundTeleportEntityPacket::class.java
-        .getConstructor(FriendlyByteBuf::class.java)
-        .newInstance(
-            buf
-        )
+    return ClientboundTeleportEntityPacket.STREAM_CODEC.decode(buf)
 }
+
+fun ItemStack.nms(): net.minecraft.world.item.ItemStack = (this as CraftItemStack).handle
 
 fun Any.f(name: String): Any {
     return this.javaClass.field(name, this)
@@ -81,7 +48,7 @@ fun Class<*>.field(name: String, instance: Any? = null): Any {
         val field = this.getField(name)
         field.isAccessible = true
         return field.get(instance)
-    } catch (e: NoSuchFieldException) {
+    } catch (_: NoSuchFieldException) {
         return declaredField(name, instance)
     }
 }
@@ -91,7 +58,7 @@ fun Class<*>.declaredField(name: String, instance: Any? = null): Any {
         val field = this.getDeclaredField(name)
         field.isAccessible = true
         return field.get(instance)
-    } catch (e: NoSuchFieldException) {
+    } catch (_: NoSuchFieldException) {
         return method("get" + name.replaceFirstChar(Char::titlecase), instance=instance)
     }
 }
@@ -106,7 +73,7 @@ fun Class<*>.method(name: String, vararg args: Any, instance: Any? = null): Any 
         val method = this.getMethod(name, *types)
         method.isAccessible = true
         return method.invoke(instance, *args)
-    } catch (e: NoSuchMethodException) {
+    } catch (_: NoSuchMethodException) {
         return declaredMethod(name, args, instance=instance)
     }
 }
@@ -119,9 +86,9 @@ fun Class<*>.declaredMethod(name: String, vararg args: Any, instance: Any? = nul
 }
 
 operator fun Any.get(index: Int): Any {
-    return (this as List<*>)[index] ?: throw IndexOutOfBoundsException("Index $index is out of bounds for list $this.")
+    return (this as List<*>)[index] ?: throw IndexOutOfBoundsException("Index $index is out of bounds for list $this[${this.size}].")
 }
 
 fun Class<*>?.newInstance(): Any? {
-    return this?.getDeclaredConstructor()?.newInstance()
+    return this?.getDeclaredConstructor()?.newInstance() ?: this?.getConstructor()?.newInstance()
 }

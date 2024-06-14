@@ -60,10 +60,10 @@ class DisplayEntity(
             ClientboundSetEntityDataPacket(
                 id,
                 listOf(
-                    displayLeftRotation(rotation),
-                    displayScale(scale),
-                    itemDisplayItemStack(itemStack),
-                    itemDisplayDisplayType(ItemDisplayContext.HEAD)
+                    DATA_LEFT_ROTATION_ID.create(rotation.toQuaternionF()),
+                    DATA_SCALE_ID.create(scale.toVector3f()),
+                    DATA_ITEM_STACK_ID.create(itemStack.nms()),
+                    DATA_ITEM_DISPLAY_ID.create(ItemDisplayContext.HEAD.id)
                 )
             )
         )
@@ -82,10 +82,10 @@ class DisplayEntity(
                     ClientboundSetEntityDataPacket(
                         id,
                         listOf(
-                            displayLeftRotation(rotation),
-                            displayScale(scale),
-                            itemDisplayItemStack(itemStack),
-                            itemDisplayDisplayType(ItemDisplayContext.HEAD)
+                            DATA_LEFT_ROTATION_ID.create(rotation.toQuaternionF()),
+                            DATA_SCALE_ID.create(scale.toVector3f()),
+                            DATA_ITEM_STACK_ID.create(itemStack.nms()),
+                            DATA_ITEM_DISPLAY_ID.create(ItemDisplayContext.HEAD.id)
                         )
                     )
                 )

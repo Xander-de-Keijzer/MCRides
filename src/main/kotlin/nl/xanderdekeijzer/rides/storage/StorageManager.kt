@@ -5,8 +5,6 @@ import nl.xanderdekeijzer.rides.active.Ride
 import nl.xanderdekeijzer.rides.data.AttachmentOffset
 import nl.xanderdekeijzer.rides.data.CartData
 import nl.xanderdekeijzer.rides.math.Quaternion
-import nl.xanderdekeijzer.rides.track.TrackModule
-import nl.xanderdekeijzer.rides.track.TrackSegment
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
@@ -130,32 +128,32 @@ fun DataOutputStream.writeRide(ride: Ride) {
 
 }
 
-
-fun DataOutputStream.writeTrackSegment(trackSegment: TrackSegment) {
-    writeUTF(trackSegment.id)
-    writeInt(trackSegment.startNode)
-    writeInt(trackSegment.endNode)
-    writeInt(trackSegment.modules.size)
-    trackSegment.modules.forEach {
-        writeUTF(Main.registry.getTrackModuleName(it) ?:
-        throw IllegalStateException(
-            "Attempting to write module that was not registered (${it.javaClass}), " +
-            "please register it using 'registry.trackModuleMap'."
-        )) }
-}
-
-fun DataInputStream.readTrackSegment(): TrackSegment {
-    val id = readUTF()
-    val startNode = readInt()
-    val endNode = readInt()
-    val moduleCount = readInt()
-    val modules = (0..<moduleCount).map {
-        readUTF().let {
-            Main.registry.createTrackModule(it) ?: throw IllegalStateException(
-                "Attempting to read module that was not registered ($it), " +
-                "please register it using 'registry.trackModuleMap"
-            )
-        }
-    }.toMutableList() as ArrayList<TrackModule>
-    return TrackSegment(startNode, endNode, modules, id)
-}
+//
+//fun DataOutputStream.writeTrackSegment(trackSegment: TrackSegment) {
+//    writeUTF(trackSegment.id)
+//    writeInt(trackSegment.startNode)
+//    writeInt(trackSegment.endNode)
+//    writeInt(trackSegment.modules.size)
+//    trackSegment.modules.forEach {
+//        writeUTF(Main.registry.getTrackModuleName(it) ?:
+//        throw IllegalStateException(
+//            "Attempting to write module that was not registered (${it.javaClass}), " +
+//            "please register it using 'registry.trackModuleMap'."
+//        )) }
+//}
+//
+//fun DataInputStream.readTrackSegment(): TrackSegment {
+//    val id = readUTF()
+//    val startNode = readInt()
+//    val endNode = readInt()
+//    val moduleCount = readInt()
+//    val modules = (0..<moduleCount).map {
+//        readUTF().let {
+//            Main.registry.createTrackModule(it) ?: throw IllegalStateException(
+//                "Attempting to read module that was not registered ($it), " +
+//                "please register it using 'registry.trackModuleMap"
+//            )
+//        }
+//    }.toMutableList() as ArrayList<TrackModule>
+//    return TrackSegment(startNode, endNode, modules, id)
+//}
